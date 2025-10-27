@@ -1,9 +1,10 @@
 using System;
 using Core.Domain.Enums;
+using Core.Domain.Interfaces;
 
 namespace Core.Domain.Entities;
 
-public class DoctorPatient
+public class DoctorPatient : IEntity
 {
     public Guid Id { get; set; }
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
