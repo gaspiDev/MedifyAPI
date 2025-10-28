@@ -1,8 +1,9 @@
+using Core.Domain.Interfaces;
 using System;
 
 namespace Core.Domain.Entities;
 
-public class AssociationInvite
+public class AssociationInvite : IEntity
 {
     public Guid Id { get; set; }
     public required string InviteCode { get; set; }
