@@ -1,8 +1,9 @@
+using Core.Domain.Interfaces;
 using System;
 
 namespace Core.Domain.Entities;
 
-public class Appointment
+public class Appointment : IEntity
 {
     public Guid Id { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

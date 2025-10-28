@@ -1,9 +1,10 @@
 using System;
 using Core.Domain.Enums;
+using Core.Domain.Interfaces;
 
 namespace Core.Domain.Entities;
 
-public class Study
+public class Study : IEntity
 {
     public Guid Id { get; set; }
     public required string Type { get; set; }

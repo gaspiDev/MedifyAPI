@@ -1,8 +1,9 @@
+using Core.Domain.Interfaces;
 using System;
 
 namespace Core.Domain.Entities;
 
-public class Doctor
+public class Doctor : IEntity
 {
     public Guid Id { get; set; }
     public required string FirstName { get; set; }
