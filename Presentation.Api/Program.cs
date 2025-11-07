@@ -1,3 +1,4 @@
+using Core.Application.Mappings;
 using Infrastructure.Data;
 using Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ikx1Y2t5UGVubnlTb2Z0d2FyZUxpY2Vuc2VLZXkvYmJiMTNhY2I1OTkwNGQ4OWI0Y2IxYzg1ZjA4OGNjZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2x1Y2t5cGVubnlzb2Z0d2FyZS5jb20iLCJhdWQiOiJMdWNreVBlbm55U29mdHdhcmUiLCJleHAiOiIxNzk0MDA5NjAwIiwiaWF0IjoiMTc2MjUyMTgyMiIsImFjY291bnRfaWQiOiIwMTlhNWU3YmY2Njk3Nzk0YjA1NzJmN2JiMmFjMGNhMCIsImN1c3RvbWVyX2lkIjoiY3RtXzAxazlmN3NkYm1ucmtxNzBjaDdudjExNWZmIiwic3ViX2lkIjoiLSIsImVkaXRpb24iOiIwIiwidHlwZSI6IjIifQ.IMjdD9VBXZMFS1HxjTdLyJr6wcpHh49Si-72EmNK0RCqVRb8GP59H5M3qFuWMGnpntIgWVlBwdtRlgMnWncqp0nCUulcU29ACFcGsOhuel7eUg_r_oJVfnf0n7b40Tbd3hfJneuwVteujME83Y3q44a1Wf15ScdIygllmldkuqWfXxp1qQ-Mrqj3PcvJURd3bglxaODTY17E57uDr2uSYZc_qkShprL0Sf39LQzs_1kZOB7r4UsUKMs0uUkO3qAduo-kyvo9xVICY4-Tg0fLJO9mNnIurtd_Kf6Ivpru3ofY2xk8XJmHfol9YP9aPAo8Iy7be_-uBlzvyfKy-eIJ0Q";
+}, typeof(PatientProfile).Assembly);
 
 var app = builder.Build();
 
