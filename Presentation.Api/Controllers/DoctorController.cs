@@ -6,9 +6,6 @@ namespace Presentation.Api.Controllers
     [ApiController]
     public class DoctorController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+
     }
 }
