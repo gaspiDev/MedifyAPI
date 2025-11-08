@@ -12,7 +12,7 @@ namespace Infrastructure.Data.Repositories
     {
         public DoctorRepository(MedifyDbContext context) : base(context) { }
 
-        public async Task<Doctor?> GetByLicenseAsync(string licenseNumber)
+        public async Task<Doctor?> ReadByLicenseAsync(string licenseNumber)
         {
             return await _context.Doctors
                 .Include(d => d.User)
@@ -21,7 +21,7 @@ namespace Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync(d => d.LicenseNumber == licenseNumber);
         }
 
-        public async Task<IEnumerable<Doctor>> GetAllWithUsersAsync()
+        public async Task<IEnumerable<Doctor>> ReadAllWithUsersAsync()
         {
             return await _context.Doctors
                 .Include(d => d.User)
@@ -30,8 +30,17 @@ namespace Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
-
+        public async Task<int?> DeleteDoctor(Guid id)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == id);
+             doctor.User.IsActive = false;
+            return await _context.SaveChangesAsync();
+            
+        }
     }
 
+        
 
 }
