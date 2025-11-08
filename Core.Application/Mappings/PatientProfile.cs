@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Core.Application.DTOs.PatientDTO;
+using Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,8 @@ namespace Core.Application.Mappings
     {
         public PatientProfile()
         {
-            // CreateMap<Source, Destination>();
+            CreateMap<Patient, PatientForViewDto>();
+            CreateMap<PatientForCreationDto, PatientForViewDto>();
         }
     }
 }

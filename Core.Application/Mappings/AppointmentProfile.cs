@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Core.Application.DTOs.AppointmentDTO;
+using Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,9 @@ namespace Core.Application.Mappings
     {
         public AppointmentProfile()
         {
-            // CreateMap<Source, Destination>();
+            CreateMap<Appointment, AppointmentForViewDto>();
+            CreateMap<AppointmentForCreationDto, Appointment>();
+            CreateMap<AppointmentForUpdateDto, Appointment>();
         }
     }
 }
