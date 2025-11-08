@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Core.Application.DTOs.DoctorDTO;
 using Core.Application.DTOs.User;
 using Core.Application.DTOs.UserDTO;
 using Core.Domain.Entities;
@@ -15,8 +16,10 @@ namespace Core.Application.Mappings
         public DoctorProfile()
         {
             // CreateMap<Source, Destination>();
-            CreateMap<User, UserForViewDto>();
-            CreateMap<UserForCreationDto, User>();
+            CreateMap<Doctor, DoctorForViewDto>();
+                //.ForMember(dest => dest.User,
+                //opt => opt.MapFrom(src => src.));
+            CreateMap<DoctorForCreationDto, Doctor>();
         }
     }
 }
