@@ -1,0 +1,13 @@
+﻿
+
+
+namespace Core.Application.DTOs.User
+{
+    public class UserForCreationDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Auth0Id { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+    }
+}
+
