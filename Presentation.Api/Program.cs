@@ -21,10 +21,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddScoped<IUserRepository, UserRepository>();
-//builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-//builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-//builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<DoctorRepository>()
@@ -39,9 +35,6 @@ builder.Services.Scan(scan => scan
     .WithScopedLifetime());
 
 
-//builder.Services.AddScoped<IDoctorService, DoctorService>();
-//builder.Services.AddScoped<IPatientService, PatientService>();
-//builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 
 builder.Services.AddAutoMapper(cfg =>
