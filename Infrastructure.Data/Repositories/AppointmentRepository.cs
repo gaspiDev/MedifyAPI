@@ -34,6 +34,7 @@ namespace Infrastructure.Data.Repositories
         {
             return await _context.Appointments
                 .Where(a => a.DoctorId == doctorId)
+                .Include(a => a.Doctor).ThenInclude(p => p.User)
                 .Include(a => a.Patient).ThenInclude(p => p.User)
                 .OrderByDescending(a => a.AppointmentDate)
                 .AsNoTracking()
@@ -45,6 +46,7 @@ namespace Infrastructure.Data.Repositories
             return await _context.Appointments
                 .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .Include(a => a.Patient).ThenInclude(p => p.User)
                 .OrderByDescending(a => a.AppointmentDate)
                 .AsNoTracking()
                 .ToListAsync();
