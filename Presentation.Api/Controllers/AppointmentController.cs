@@ -1,7 +1,5 @@
 ﻿using Core.Application.DTOs.AppointmentDTO;
 using Core.Application.Interfaces;
-using Core.Domain.Entities;
-using Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
+using Scrutor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,14 +21,27 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+//builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+//builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+//builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
-builder.Services.AddScoped<IDoctorService, DoctorService>();
-builder.Services.AddScoped<IPatientService, PatientService>();
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<DoctorRepository>()
+    .AddClasses(classes => classes.InNamespaces("Infrastructure.Data.Repositories"))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<DoctorService>()
+    .AddClasses(classes => classes.InNamespaces("Core.Application.Services"))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+
+//builder.Services.AddScoped<IDoctorService, DoctorService>();
+//builder.Services.AddScoped<IPatientService, PatientService>();
+//builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 
 builder.Services.AddAutoMapper(cfg =>
