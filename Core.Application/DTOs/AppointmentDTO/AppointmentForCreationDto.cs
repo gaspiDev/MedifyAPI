@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Application.DTOs.AppointmentDTO
 {
-    internal class AppointmentForCreationDto
+    public class AppointmentForCreationDto
     {
         public DateTime AppointmentDate { get; set; }
         public string? Reason { get; set; }

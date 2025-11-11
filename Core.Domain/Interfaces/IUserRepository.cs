@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Data.Repositories
 {
-    public interface IUserRepository
+    public interface IUserRepository : IBaseRepository<User>
     {
         Task<int> DeleteUserAsync(Guid id);
         Task<User?> ReadUserByEmailAsync(string email);

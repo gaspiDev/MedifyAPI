@@ -22,19 +22,31 @@ namespace Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync(p => p.Dni == dni);
         }
 
-        public async Task<Patient?> ReadByUserIdAsync(Guid userId)
+        public async Task<Patient?> ReadUserByIdAsync(Guid Id)
         {
             return await _context.Patients
                 .Include(p => p.User)
                 .Where(u => u.User.IsActive)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.UserId == userId);
+                .FirstOrDefaultAsync(p => p.Id == Id);
         }
 
-        public async Task<IEnumerable<Patient>> ReadAllWithUsersAsync()
+        public async Task<IEnumerable<Patient>> ReadAllPatientsAsync()
         {
             return await _context.Patients
                 .Include(p => p.User)
+                .Where(p => p.User.IsActive)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Doctor?>> ReadDoctorsByPatientAsync(Guid patientId)
+        {
+            return await _context.DoctorPatients
+                .Where(dp => dp.PatientId == patientId)
+                .Include(dp => dp.Doctor)
+                    .ThenInclude(dp => dp.User)
+                .Select(dp => dp.Doctor)
                 .Where(p => p.User.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
