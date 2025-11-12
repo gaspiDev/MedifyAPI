@@ -54,6 +54,7 @@ builder.Services
         options.Audience = audience;
     });
 
+builder.Services.AddHttpClient();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
