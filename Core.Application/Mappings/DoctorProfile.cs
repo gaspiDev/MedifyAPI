@@ -17,9 +17,12 @@ namespace Core.Application.Mappings
         {
             // CreateMap<Source, Destination>();
             CreateMap<Doctor, DoctorForViewDto>();
-                //.ForMember(dest => dest.User,
-                //opt => opt.MapFrom(src => src.));
-            CreateMap<DoctorForCreationDto, Doctor>();
+            //.ForMember(dest => dest.User,
+            //opt => opt.MapFrom(src => src.));
+            //CreateMap<DoctorForCreationDto, Doctor>();
+            CreateMap<DoctorForCreationDto, Doctor>()
+    .ForMember(dest => dest.User, opt => opt.Ignore()); // 👈 evita crear un User anidado
+
         }
     }
 }

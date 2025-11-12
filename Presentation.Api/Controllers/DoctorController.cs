@@ -1,5 +1,8 @@
-﻿using Core.Application.Interfaces;
+﻿using Core.Application.DTOs.DoctorDTO;
+using Core.Application.DTOs.PatientDTO;
+using Core.Application.Interfaces;
 using Core.Application.Services;
+using Core.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers
@@ -34,6 +37,36 @@ namespace Presentation.Api.Controllers
             return Ok(patients);
         }
 
-        
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] DoctorForCreationDto doctor)
+        {
+            try
+            {
+                var id = await _doctorService.CreateDoctorAsync(doctor);
+
+                return Ok(new { message = "User created successfully", Id = id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
+            }
+        }
+
+        [HttpPost("/Doctor/SysAdmin")]
+        public async Task<IActionResult> CreateDoctorAsSysAdmin([FromBody] DoctorForCreationDto doctor)
+        {
+            try
+            {
+                var id = await _doctorService.CreateDoctorAsync(doctor);
+
+                return Ok(new { message = "User created successfully", Id = id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
+            }
+        }
+
     }
 }

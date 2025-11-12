@@ -16,6 +16,6 @@ namespace Core.Application.DTOs.DoctorDTO
         public string LicenseNumber { get; set; } = string.Empty;
         public string Adress { get; set; } = string.Empty;
         public int Dni { get; set; }
-        public UserForUpdateDto User { get; set; } = null!;
+        public UserForCreationDto User { get; set; } = null!;
     }
 }

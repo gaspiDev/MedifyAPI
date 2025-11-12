@@ -52,7 +52,14 @@ namespace Infrastructure.Data.Repositories
             };
 
             var res = await _http.PostAsJsonAsync($"https://{_domain}/api/v2/users", body);
-            res.EnsureSuccessStatusCode();
+            //res.EnsureSuccessStatusCode();
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var errorBody = await res.Content.ReadAsStringAsync();
+                Console.WriteLine($"Auth0 Error: {res.StatusCode} - {errorBody}");
+                res.EnsureSuccessStatusCode();
+            }
 
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();
             return json.GetProperty("user_id").GetString()!;
