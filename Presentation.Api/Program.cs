@@ -3,11 +3,11 @@ using Core.Application.Mappings;
 using Core.Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Data.Repositories;
+using Infrastructure.Data.Resilience;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using Scrutor;
-using System.Text;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,12 +54,20 @@ builder.Services
         options.Audience = audience;
     });
 
-builder.Services.AddHttpClient();
+builder.Services
+    .AddHttpClient<IAuth0Repository, Auth0Repository>(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(10); 
+
+    })
+    .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
+    .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy())
+    .AddPolicyHandler(PollyPolicies.GetTimeoutPolicy());
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
