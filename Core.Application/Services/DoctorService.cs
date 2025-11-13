@@ -64,18 +64,54 @@ namespace Core.Application.Services
 
         public async Task<string?> CreateDoctorAsync(DoctorForCreationDto dto)
         {
+            var userByEmail = await _userService.ReadUserByEmail(dto.User.Email);
+            if (userByEmail != null) throw new Exception("Mail already exists");
+
+            var doctorByLicence = await _doctorRepository.ReadByLicenseAsync(dto.LicenseNumber);
+            if (doctorByLicence != null) throw new Exception("Licence already exists");
+
+            var doctorByDni = await _doctorRepository.ReadByDniAsync(dto.Dni);
+            if (doctorByDni != null) throw new Exception("Dni already exists");
+
+            var auth0Exists = await _auth0Service.UserExists(dto.User.Email);
+            if (auth0Exists) throw new Exception("User already exists");
+
             dto.User.Role = Role.Admin;
-            var auth0Id = await _auth0Service.CreateUserAsSysAdmin(dto.User);
 
-            var userId = await _userService.CreateUserAsync(dto.User, auth0Id);
-            Console.WriteLine($"Auth0Id = {auth0Id}");
-            var doctorEntity = _mapper.Map<Doctor>(dto);
-            doctorEntity.UserId = Guid.Parse(userId);
-            Console.WriteLine($"Doctor.UserId = {doctorEntity.UserId}");
-            await _doctorRepository.CreateAsync(doctorEntity);
+            string? auth0Id = null;
+            string? userId = null;
 
-            return doctorEntity.Id.ToString();
+            try
+            {
+                auth0Id = await _auth0Service.CreateUserAsSysAdmin(dto.User);
+                if (string.IsNullOrEmpty(auth0Id))
+                    throw new Exception("AUTH0_CREATION_FAILED");
+
+                userId = await _userService.CreateUserAsync(dto.User, auth0Id);
+                if (string.IsNullOrEmpty(userId))
+                    throw new Exception("USER_DB_CREATION_FAILED");
+
+                var doctorEntity = _mapper.Map<Doctor>(dto);
+                doctorEntity.UserId = Guid.Parse(userId);
+
+                await _doctorRepository.CreateAsync(doctorEntity);
+
+                return doctorEntity.Id.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CreateDoctor] Error: {ex.Message}");
+
+                if (!string.IsNullOrEmpty(auth0Id))
+                    await _auth0Service.DeleteUserAsync(auth0Id);
+
+                if (!string.IsNullOrEmpty(userId))
+                    await _userService.DeleteUserAsync(Guid.Parse(userId));
+
+                throw;
+            }
         }
+
 
 
     }

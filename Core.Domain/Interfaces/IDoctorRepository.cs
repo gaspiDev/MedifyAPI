@@ -9,5 +9,6 @@ namespace Infrastructure.Data.Repositories
         Task<int?> DeleteDoctor(Guid id);
         Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId);
         Task<Doctor?> ReadById(Guid id);
+        Task<Doctor?> ReadByDniAsync(int dni);
     }
 }

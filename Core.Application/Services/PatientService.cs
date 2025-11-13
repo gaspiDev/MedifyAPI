@@ -63,18 +63,44 @@ namespace Core.Application.Services
             }
         }
         public async Task<string?> CreatePatientAsync(PatientForCreationDto dto)
-        {
+        { 
+            var userByEmail = await _userService.ReadUserByEmail(dto.User.Email);
+            if (userByEmail != null) throw new Exception("Mail already exists");
+
+            var patientByDNI = await _patientRepository.ReadByDniAsync(dto.Dni);
+            if (patientByDNI != null) throw new Exception("Dni already exists");
+
             dto.User.Role = Role.User;
-            var auth0Id = await _auth0Service.CreateUserAsSysAdmin(dto.User);
+            string? auth0Id = null;
+            string? userId = null;
 
-            var userId = await _userService.CreateUserAsync(dto.User, auth0Id);
-            var patientEntity = _mapper.Map<Patient>(dto);
-            patientEntity.UserId = Guid.Parse(userId);
+            try
+            {
+                auth0Id = await _auth0Service.CreateUserAsSysAdmin(dto.User);
+                if (string.IsNullOrEmpty(auth0Id)) throw new Exception("AUTH0_CREATION_FAILED");
 
-            await _patientRepository.CreateAsync(patientEntity);
+                userId = await _userService.CreateUserAsync(dto.User, auth0Id);
+                if (string.IsNullOrEmpty(userId)) throw new Exception("USER_DB_CREATION_FAILED");
 
-            return patientEntity.Id.ToString();
+                var patient = _mapper.Map<Patient>(dto);
+                patient.UserId = Guid.Parse(userId);
+
+                await _patientRepository.CreateAsync(patient);
+
+                return patient.Id.ToString();
+            }
+            catch
+            {
+                if (!string.IsNullOrEmpty(auth0Id))
+                    await _auth0Service.DeleteUserAsync(auth0Id);
+
+                if (!string.IsNullOrEmpty(userId))
+                    await _userService.DeleteUserAsync(Guid.Parse(userId));
+
+                throw; 
+            }
         }
+
 
 
     }

@@ -6,5 +6,6 @@ namespace Core.Application.Interfaces
     {
         Task<string> CreateUserAsSysAdmin(UserForCreationDto userDto);
         Task<HttpResponseMessage> DeleteUserAsync(string userId);
+        Task<bool> UserExists(string email);
     }
 }

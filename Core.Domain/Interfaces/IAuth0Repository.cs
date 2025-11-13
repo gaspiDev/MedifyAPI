@@ -5,5 +5,6 @@ namespace Infrastructure.Data.Repositories
     {
         Task<string> CreateUserAsync(string email, string password);
         Task<HttpResponseMessage> DeleteUserAsync(string auth0Id);
+        Task<bool> UserExists(string email);
     }
 }

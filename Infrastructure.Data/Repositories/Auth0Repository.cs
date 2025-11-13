@@ -73,5 +73,15 @@ namespace Infrastructure.Data.Repositories
             return res.EnsureSuccessStatusCode();
             
         }
+
+        public async Task<bool> UserExists(string email)
+        {
+            var token = await GetManagementTokenAsync();
+            _http.DefaultRequestHeaders.Authorization = new("Bearer", token);
+            var res = await _http.GetAsync($"https://{_domain}/api/v2/users-by-email?email={Uri.EscapeDataString(email)}");
+            res.EnsureSuccessStatusCode();
+            var json = await res.Content.ReadFromJsonAsync<JsonElement>();
+            return json.GetArrayLength() > 0;
+        }
     }
 }

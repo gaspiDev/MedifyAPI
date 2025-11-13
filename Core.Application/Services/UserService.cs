@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Application.DTOs.User;
+using Core.Application.DTOs.UserDTO;
 using Core.Application.Interfaces;
 using Core.Domain.Entities;
 using Infrastructure.Data.Repositories;
@@ -39,6 +40,34 @@ namespace Core.Application.Services
             }
 
         }
+
+        public async Task<UserForViewDto?> ReadUserByEmail(string email)
+        {
+            var user = await _userRepository.ReadUserByEmailAsync(email);
+            return user == null
+                ? null
+                : _mapper.Map<UserForViewDto>(user);
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid id)
+        {
+            var user = await _userRepository.ReadByIdAsync(id);
+            if (user == null)
+            {
+                return false;
+            }
+            try
+            {
+            await _userRepository.DeleteUserAsync(id);
+            return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting user: {ex.Message}");
+                return false;
+            }
+        }
+
 
     }
 }

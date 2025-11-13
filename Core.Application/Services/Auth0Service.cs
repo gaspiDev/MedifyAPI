@@ -38,6 +38,7 @@ namespace Core.Application.Services
             try
             {
                 var userId = await _auth0Repository.CreateUserAsync(userDto.Email, userDto.Password);
+                Console.WriteLine($"[Auth0] Creating user {userDto.Email} in connection XYZ...");
                 return userId;
             }
             catch (Exception ex)
@@ -62,6 +63,20 @@ namespace Core.Application.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting user in Auth0: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<bool> UserExists(string email)
+        {
+            try
+            {
+                var exists = await _auth0Repository.UserExists(email);
+                return exists;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if user exists in Auth0: {ex.Message}");
                 throw;
             }
         }
