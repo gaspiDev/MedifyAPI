@@ -8,6 +8,7 @@ namespace Core.Application.Interfaces
         Task<DoctorForViewDto?> ReadById(Guid id);
         Task<IEnumerable<DoctorForViewDto>?> ReadDoctors();
         Task<IEnumerable<PatientForViewDto>?> ReadPatientsByDoctor(Guid doctorId);
+        Task<IEnumerable<PatientForViewDto>?> ReadPatientsNotAssociatedByDoctorAsync(Guid id);
         Task<string?> CreateDoctorAsync(DoctorForCreationDto dto);
     }
 }
