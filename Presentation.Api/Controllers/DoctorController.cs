@@ -3,12 +3,14 @@ using Core.Application.DTOs.PatientDTO;
 using Core.Application.Interfaces;
 using Core.Application.Services;
 using Core.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class DoctorController : Controller
     {
         private readonly IDoctorService _doctorService;
@@ -66,6 +68,14 @@ namespace Presentation.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
             }
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] DoctorForUpdateDto dto)
+        {
+            var result = await _doctorService.UpdateDoctorAsync(id, dto);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
 
     }

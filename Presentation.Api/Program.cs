@@ -11,6 +11,9 @@ using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseWebRoot("wwwroot");
+
+
 builder.Services.AddDbContext<MedifyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -25,6 +28,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<DoctorRepository>()
     .AddClasses(classes => classes.InNamespaces("Infrastructure.Data.Repositories"))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<DoctorRepository>()
+    .AddClasses(classes => classes.InNamespaces("Infrastructure.Data.Services.Storage"))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
 
@@ -46,13 +55,29 @@ builder.Services.AddAutoMapper(cfg =>
 var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];
 
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = $"https://{domain}/";
         options.Audience = audience;
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("AUTH FAILED: " + context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Console.WriteLine("AUTH CHALLENGE: " + context.ErrorDescription);
+                return Task.CompletedTask;
+            }
+        };
     });
+
 
 builder.Services
     .AddHttpClient<IAuth0Repository, Auth0Repository>(client =>
@@ -79,6 +104,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 

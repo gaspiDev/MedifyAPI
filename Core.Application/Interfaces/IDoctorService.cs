@@ -9,5 +9,6 @@ namespace Core.Application.Interfaces
         Task<IEnumerable<DoctorForViewDto>?> ReadDoctors();
         Task<IEnumerable<PatientForViewDto>?> ReadPatientsByDoctor(Guid doctorId);
         Task<string?> CreateDoctorAsync(DoctorForCreationDto dto);
+        Task<Guid?> UpdateDoctorAsync(Guid id, DoctorForUpdateDto dto);
     }
 }

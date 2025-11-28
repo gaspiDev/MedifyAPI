@@ -1,11 +1,13 @@
 ﻿using Core.Application.DTOs.AppointmentDTO;
 using Core.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class AppointmentController : Controller
     {
         private readonly IAppointmentService _appointmentRepository;

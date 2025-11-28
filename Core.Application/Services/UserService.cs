@@ -49,6 +49,12 @@ namespace Core.Application.Services
                 : _mapper.Map<UserForViewDto>(user);
         }
 
+        public async Task<UserForViewDto?> ReadByAuth0IdAsync(string auth0Id)
+        {
+            var user = await _userRepository.ReadByAuth0IdAsync(auth0Id);
+            return _mapper.Map<UserForViewDto?>(user);
+        }
+
         public async Task<bool> DeleteUserAsync(Guid id)
         {
             var user = await _userRepository.ReadByIdAsync(id);

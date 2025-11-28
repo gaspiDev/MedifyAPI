@@ -112,6 +112,19 @@ namespace Core.Application.Services
             }
         }
 
+        public async Task<Guid?> UpdateDoctorAsync(Guid id, DoctorForUpdateDto dto)
+        {
+            var doctor = await _doctorRepository.ReadById(id);
+            if (doctor == null)
+            {
+                return null;
+            }
+
+            _mapper.Map(dto, doctor);
+            await _doctorRepository.UpdateAsync(doctor);
+            return doctor.Id;
+        }
+
 
 
     }

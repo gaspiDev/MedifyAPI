@@ -1,5 +1,6 @@
 using Core.Application.DTOs.User;
 using Core.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,6 +46,26 @@ namespace Presentation.Api
             {
                 return StatusCode(StatusCodes.Status400BadRequest, $"Error deleting user: {ex.Message}");
             }
+        }
+
+        [HttpGet("me")]
+        [Authorize] 
+        public async Task<IActionResult> GetMyData()
+        {
+            
+            var auth0Id = User.FindFirst("sub")?.Value; 
+
+            if (auth0Id is null)
+                return Unauthorized();
+
+            var user = await _userService.ReadByAuth0IdAsync(auth0Id);
+
+            if (user is null)
+            {
+                return NotFound("User not found in Medify database");
+            }
+
+            return Ok(user); 
         }
     }
 }

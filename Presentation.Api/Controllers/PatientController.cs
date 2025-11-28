@@ -4,12 +4,14 @@ using Core.Application.Interfaces;
 using Core.Application.Services;
 using Core.Domain.Entities;
 using Infrastructure.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class PatientController : Controller
     {
         private readonly IPatientService _patientService;
@@ -69,7 +71,13 @@ namespace Presentation.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
             }
         }
-
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] PatientForUpdateDto dto)
+        {
+            var result = await _patientService.UpdatePatientAsync(id, dto);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
 
 

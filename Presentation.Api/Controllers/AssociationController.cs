@@ -1,6 +1,7 @@
 ﻿using Core.Application.DTOs.Association;
 using Core.Application.DTOs.AssociationDTO;
 using Core.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace Presentation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class AssociationController : Controller
     {
         private readonly IAssociationInviteService _associationService;
