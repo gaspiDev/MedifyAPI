@@ -57,30 +57,6 @@ var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];
 
 
-//builder.Services
-//    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.Authority = $"https://{domain}/";
-//        options.Audience = audience;
-
-//        options.Events = new JwtBearerEvents
-//        {
-//            OnAuthenticationFailed = context =>
-//            {
-//                Console.WriteLine("AUTH FAILED: " + context.Exception.Message);
-//                return Task.CompletedTask;
-//            },
-//            OnChallenge = context =>
-//            {
-//                Console.WriteLine("AUTH CHALLENGE: " + context.ErrorDescription);
-//                return Task.CompletedTask;
-//            }
-//        };
-//    });
-
-
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -135,8 +111,16 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services
     .AddHttpClient<IAuth0Repository, Auth0Repository>(client =>
     {
-        client.Timeout = TimeSpan.FromSeconds(10); 
+        if (!string.IsNullOrEmpty(domain))
+            client.BaseAddress = new Uri($"https://{domain}/");
 
+        client.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
+    })
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
     })
     .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
     .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy())
