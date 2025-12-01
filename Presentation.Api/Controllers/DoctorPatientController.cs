@@ -16,6 +16,13 @@ namespace Presentation.Api.Controllers
             _doctorPatientService = doctorPatientService;
         }
 
+        [HttpGet("Doctor/{doctorId}")]
+        public async Task<IActionResult> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId)
+        {
+            var patient = await _doctorPatientService.ReadPatientsNotAssociatedWithDoctorAsync(doctorId);
+            return Ok(patient);
+        }
+
         [HttpPost("associate")]
         public async Task<IActionResult> AssociateDoctorPatient([FromBody] AssociationAsSysAdminDto dto)
         {

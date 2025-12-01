@@ -38,6 +38,15 @@ namespace Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync(p => p.Dni == dni);
         }
 
+        public async Task<Doctor?> ReadByUserIdAsync(Guid userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
         public async Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId)
         {
             return await _context.DoctorPatients

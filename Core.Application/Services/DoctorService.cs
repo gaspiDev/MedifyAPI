@@ -47,6 +47,20 @@ namespace Core.Application.Services
                 return doctorForView;
             }
         }
+        public async Task<DoctorForViewDto?> ReadByUserIdAsync(Guid userId)
+        {
+            var doctor = await _doctorRepository.ReadByUserIdAsync(userId);
+            if (doctor == null)
+            {
+                return null;
+            }
+            else
+            {
+                var doctorForView = _mapper.Map<DoctorForViewDto>(doctor);
+                return doctorForView;
+            }
+        }
+
 
         public async Task<IEnumerable<PatientForViewDto>?> ReadPatientsByDoctor(Guid doctorId)
         {

@@ -6,6 +6,7 @@ using Infrastructure.Data.Repositories;
 using Infrastructure.Data.Resilience;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Polly;
 using Polly.Extensions.Http;
 
@@ -56,6 +57,30 @@ var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];
 
 
+//builder.Services
+//    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//    .AddJwtBearer(options =>
+//    {
+//        options.Authority = $"https://{domain}/";
+//        options.Audience = audience;
+
+//        options.Events = new JwtBearerEvents
+//        {
+//            OnAuthenticationFailed = context =>
+//            {
+//                Console.WriteLine("AUTH FAILED: " + context.Exception.Message);
+//                return Task.CompletedTask;
+//            },
+//            OnChallenge = context =>
+//            {
+//                Console.WriteLine("AUTH CHALLENGE: " + context.ErrorDescription);
+//                return Task.CompletedTask;
+//            }
+//        };
+//    });
+
+
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -67,17 +92,45 @@ builder.Services
         {
             OnAuthenticationFailed = context =>
             {
-                Console.WriteLine("AUTH FAILED: " + context.Exception.Message);
+                Console.WriteLine("AUTH FAILED: " + context.Exception?.Message);
                 return Task.CompletedTask;
             },
             OnChallenge = context =>
             {
-                Console.WriteLine("AUTH CHALLENGE: " + context.ErrorDescription);
+                Console.WriteLine("AUTH CHALLENGE:");
+                Console.WriteLine("  Error: " + context.Error);
+                Console.WriteLine("  Description: " + context.ErrorDescription);
+                Console.WriteLine("  Failure: " + context.AuthenticateFailure?.Message);
                 return Task.CompletedTask;
             }
         };
     });
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Medify API", Version = "v1" });
+
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "JWT Bearer. Ej: Bearer {token}",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { securityScheme, Array.Empty<string>() }
+    });
+});
 
 builder.Services
     .AddHttpClient<IAuth0Repository, Auth0Repository>(client =>

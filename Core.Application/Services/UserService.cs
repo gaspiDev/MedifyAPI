@@ -3,6 +3,7 @@ using Core.Application.DTOs.User;
 using Core.Application.DTOs.UserDTO;
 using Core.Application.Interfaces;
 using Core.Domain.Entities;
+using Core.Domain.Enums;
 using Infrastructure.Data.Repositories;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,12 @@ namespace Core.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        private readonly IDoctorRepository _doctorRepository;
+        public UserService(IUserRepository userRepository, IMapper mapper, IDoctorRepository doctorRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _doctorRepository = doctorRepository;
         }
 
         public async Task<string> CreateUserAsync(UserForCreationDto userDto, string auth0id)
@@ -40,6 +43,59 @@ namespace Core.Application.Services
             }
 
         }
+
+        //public async Task<UserForViewDto> CreateFromAuth0Async(string auth0Id, string email)
+        //{
+        //    var entity = new User
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        Email = email,
+        //        Auth0Id = auth0Id,
+        //        Role = Role.Admin,      
+        //        IsActive = true,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
+
+        //    await _userRepository.CreateAsync(entity);
+
+        //    return _mapper.Map<UserForViewDto>(entity);
+        //}
+        public async Task<UserForViewDto> CreateFromAuth0Async(string auth0Id, string email)
+        {
+            // 1) Crear el User
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                Auth0Id = auth0Id,
+                // elegí el rol que corresponda:
+                // Role = Role.Admin;
+                Role = Role.Admin,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _userRepository.CreateAsync(user);
+
+            // 2) Crear el Doctor asociado (perfil vacío por ahora)
+            var doctor = new Doctor
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                Specialty = string.Empty,
+                LicenseNumber = string.Empty,
+                Adress = string.Empty,   // (ojo con el typo, usá el nombre exacto de tu entidad)
+                Dni = 0                  // poné 0 o algún valor neutro que acepte la DB
+            };
+
+            await _doctorRepository.CreateAsync(doctor);
+
+            // 3) Devolvés el user para el front
+            return _mapper.Map<UserForViewDto>(user);
+        }
+
 
         public async Task<UserForViewDto?> ReadUserByEmail(string email)
         {

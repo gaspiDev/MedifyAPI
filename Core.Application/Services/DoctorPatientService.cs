@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Application.DTOs.AssociationDTO;
+using Core.Application.DTOs.PatientDTO;
 using Core.Application.Interfaces;
 using Core.Domain.Entities;
 using Core.Domain.Enums;
@@ -20,6 +21,20 @@ namespace Core.Application.Services
         {
             _doctorPatientRepository = doctorPatientRepository;
             _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<PatientForViewDto>?> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId)
+        {
+            var patients = await _doctorPatientRepository.ReadPatientsNotAssociatedWithDoctorAsync(doctorId);
+            if (patients == null)
+            {
+                return null;
+            }
+            else
+            {
+                var patientsForView = _mapper.Map<IEnumerable<PatientForViewDto>>(patients);
+                return patientsForView;
+            }
         }
 
         public async Task<AssociationForViewDto>? CreateAssociationAsync(AssociationAsSysAdminDto dto)

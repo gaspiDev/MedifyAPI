@@ -18,12 +18,17 @@ namespace Core.Application.Services
         private readonly IAssociationInviteRepository _inviteRepository;
         private readonly IDoctorPatientRepository _doctorPatientRepository;
         private readonly IMapper _mapper;
-
-        public AssociationInviteService(IAssociationInviteRepository inviteRepository, IDoctorPatientRepository doctorPatientRepository, IMapper mapper)
+        private readonly IUserRepository _userRepository;
+        private readonly IPatientRepository _patientRepository;
+        public AssociationInviteService(IAssociationInviteRepository inviteRepository, 
+            IDoctorPatientRepository doctorPatientRepository, IMapper mapper,
+            IUserRepository userRepository, IPatientRepository patientRepository)
         {
             _inviteRepository = inviteRepository;
             _doctorPatientRepository = doctorPatientRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
+            _patientRepository = patientRepository;
         }
 
         public async Task<InviteForViewDto> CreateInviteByCodeAsync(CreateInvitationDto dto)
@@ -113,6 +118,96 @@ namespace Core.Application.Services
 
             return _mapper.Map<AssociationForViewDto>(association);
         }
+
+        public async Task<AssociationForViewDto> AcceptByCodeAsync(string inviteCode, string auth0Id)
+        {
+            var invite = await _inviteRepository.ReadByCodeAsync(inviteCode)
+                         ?? throw new Exception("Invite not found");
+
+            if (invite.IsAccepted)
+                throw new Exception("This invitation has already been used.");
+
+            if (invite.ExpiresAt <= DateTime.UtcNow)
+                throw new Exception("This invitation has expired.");
+
+            var user = await _userRepository.ReadByAuth0IdAsync(auth0Id)
+                       ?? throw new Exception("User not found.");
+
+            var patient = await _patientRepository.ReadByIdAsync(user.Id)
+                          ?? throw new Exception("Patient profile not found.");
+
+            var existing = await _doctorPatientRepository.ReadExistingAssociationsAsync(invite.DoctorId, patient.Id);
+            if (existing != null)
+                throw new Exception("This doctor and patient are already associated.");
+
+            
+            var method = AssociationMethod.Request; 
+
+            var association = new DoctorPatient
+            {
+                Id = Guid.NewGuid(),
+                DoctorId = invite.DoctorId,
+                PatientId = patient.Id,
+                Method = method,
+                AssignedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            await _doctorPatientRepository.CreateAsync(association);
+
+            invite.IsAccepted = true;
+            invite.AcceptedAt = DateTime.UtcNow;
+            invite.PatientId = patient.Id;
+
+            await _inviteRepository.UpdateAsync(invite);
+
+            return _mapper.Map<AssociationForViewDto>(association);
+        }
+
+        public async Task<AssociationForViewDto> AcceptByQrAsync(string qrToken, string auth0Id)
+        {
+            var invite = await _inviteRepository.ReadQRAsync(qrToken)
+                         ?? throw new Exception("Invite not found");
+
+            if (invite.IsAccepted)
+                throw new Exception("This invitation has already been used.");
+
+            if (invite.ExpiresAt <= DateTime.UtcNow)
+                throw new Exception("This invitation has expired.");
+
+            var user = await _userRepository.ReadByAuth0IdAsync(auth0Id)
+                       ?? throw new Exception("User not found.");
+
+            var patient = await _patientRepository.ReadByIdAsync(user.Id)
+                          ?? throw new Exception("Patient profile not found.");
+
+            var existing = await _doctorPatientRepository.ReadExistingAssociationsAsync(invite.DoctorId, patient.Id);
+            if (existing != null)
+                throw new Exception("This doctor and patient are already associated.");
+
+            var method = AssociationMethod.QRCode;
+
+            var association = new DoctorPatient
+            {
+                Id = Guid.NewGuid(),
+                DoctorId = invite.DoctorId,
+                PatientId = patient.Id,
+                Method = method,
+                AssignedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            await _doctorPatientRepository.CreateAsync(association);
+
+            invite.IsAccepted = true;
+            invite.AcceptedAt = DateTime.UtcNow;
+            invite.PatientId = patient.Id;
+
+            await _inviteRepository.UpdateAsync(invite);
+
+            return _mapper.Map<AssociationForViewDto>(association);
+        }
+
 
         private string GenerateCode() =>
             Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();

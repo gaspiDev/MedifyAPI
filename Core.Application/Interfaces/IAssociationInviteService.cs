@@ -10,5 +10,7 @@ namespace Core.Application.Interfaces
         Task<InviteForViewDto> CreateInviteByQrAsync(CreateInvitationDto dto);
         Task<InviteForViewDto?> ValidateByCodeAsync(string code);
         Task<InviteForViewDto?> ValidateByQrAsync(string token);
+        Task<AssociationForViewDto> AcceptByCodeAsync(string inviteCode, string auth0Id);
+        Task<AssociationForViewDto> AcceptByQrAsync(string qrToken, string auth0Id);
     }
 }

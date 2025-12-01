@@ -39,6 +39,13 @@ namespace Presentation.Api.Controllers
             return Ok(patients);
         }
 
+        [HttpGet("/User/{id}")]
+        public async Task<IActionResult> ReadByUserId([FromRoute] Guid id)
+        {
+            var doctor = await _doctorService.ReadByUserIdAsync(id);
+            return Ok(doctor);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] DoctorForCreationDto doctor)

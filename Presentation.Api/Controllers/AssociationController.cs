@@ -4,6 +4,7 @@ using Core.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Presentation.Api.Controllers
 {
@@ -58,6 +59,34 @@ namespace Presentation.Api.Controllers
         public async Task<IActionResult> AcceptInvite([FromBody] AcceptInvitationDto dto)
         {
             var result = await _associationService.AcceptInviteAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("accept/code")]
+        public async Task<IActionResult> AcceptByCode([FromBody] AcceptByCodeDto dto)
+        {
+            var auth0Id =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                User.FindFirst("sub")?.Value;
+
+            if (auth0Id is null)
+                return Unauthorized("Auth0Id (sub) not found in token.");
+
+            var result = await _associationService.AcceptByCodeAsync(dto.InviteCode, auth0Id);
+            return Ok(result);
+        }
+
+        [HttpPost("accept/qr")]
+        public async Task<IActionResult> AcceptByQr([FromBody] AcceptByQrDto dto)
+        {
+            var auth0Id =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                User.FindFirst("sub")?.Value;
+
+            if (auth0Id is null)
+                return Unauthorized("Auth0Id (sub) not found in token.");
+
+            var result = await _associationService.AcceptByQrAsync(dto.QrToken, auth0Id);
             return Ok(result);
         }
     }

@@ -84,6 +84,19 @@ namespace Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
+        // New: patients not actively associated with given doctor
+        public async Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId)
+        {
+            return await _context.Patients
+                .Include(p => p.User)
+                .Where(p => p.User.IsActive &&
+                            !_context.DoctorPatients.Any(dp => dp.DoctorId == doctorId && dp.PatientId == p.Id && dp.IsActive))
+                .AsNoTracking()
+                .OrderBy(p => p.LastName)
+                .ThenBy(p => p.FirstName)
+                .ToListAsync();
+        }
+
         public async Task<Guid?> DeleteAssociations(Guid id)
         {
             var AssId = await ReadAssociationByIdAsync(id);
