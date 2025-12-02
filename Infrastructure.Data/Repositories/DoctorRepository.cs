@@ -59,17 +59,6 @@ namespace Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedByDoctorAsync(Guid doctorId)
-        {
-            var patients = _context.Patients
-                .Include(p => p.User)
-                .Where(p => p.User.IsActive &&
-                            !_context.DoctorPatients.Any(dp => dp.PatientId == p.Id && dp.DoctorId == doctorId))
-                .AsNoTracking();
-
-            return await patients.ToListAsync();
-        }
-
         public async Task<IEnumerable<Doctor>> ReadAllDoctorsAsync()
         {
             return await _context.Doctors

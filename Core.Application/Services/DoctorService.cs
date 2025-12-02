@@ -74,20 +74,6 @@ namespace Core.Application.Services
             }
         }
 
-        public async Task<IEnumerable<PatientForViewDto>?> ReadPatientsNotAssociatedByDoctorAsync(Guid id)
-        {
-            var patients = await _doctorRepository.ReadPatientsNotAssociatedByDoctorAsync(id);
-            if (patients == null)
-            {
-                return null;
-            }
-            else
-            {
-                var patientsForView = _mapper.Map<IEnumerable<PatientForViewDto>?>(patients);
-                return patientsForView;
-            }
-        }
-
         public async Task<string?> CreateDoctorAsync(DoctorForCreationDto dto)
         {
             var userByEmail = await _userService.ReadUserByEmail(dto.User.Email);

@@ -76,23 +76,16 @@ namespace Core.Application.Services
             }
         }
 
-        public async Task<AssociationForViewDto?> UnassignAssociationAsync(Guid associationId)
+        public async Task<AssociationForViewDto?> UnassignAssociationAsync(Guid doctorId, Guid patientId)
         {
-            var association = await _doctorPatientRepository.ReadAssociationByIdAsync(associationId);
+            var association = await _doctorPatientRepository.ReadExistingAssociationsAsync(doctorId, patientId);
             if (association == null || !association.IsActive)
                 throw new Exception("Active association not found.");
-            association.IsActive = false;
-            association.UnassignedAt = DateTime.UtcNow;
-            try
-            {
-                await _doctorPatientRepository.UpdateAsync(association);
-                return _mapper.Map<AssociationForViewDto>(association);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error unassigning association: " + ex.Message);
-            }
-        }
 
+            await _doctorPatientRepository.ReadExistingAssociationsAsync(doctorId, patientId);
+
+            return _mapper.Map<AssociationForViewDto>(association);
+        }
+    
     }
 }

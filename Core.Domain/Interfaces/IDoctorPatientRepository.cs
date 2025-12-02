@@ -11,7 +11,7 @@ namespace Infrastructure.Data.Repositories
         Task<IEnumerable<DoctorPatient>?> ReadAllActiveAssociationsAsync();
         Task<IEnumerable<DoctorPatient>?> ReadAssociationsByDoctorAsync(Guid doctorId);
         Task<IEnumerable<DoctorPatient>?> ReadAssociationsByPatientAsync(Guid patientId);
-        Task<Guid?> DeleteAssociations(Guid id);
+        Task<Guid?> DeleteAssociations(Guid doctorId, Guid patientId);
         Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId);
     }
 }

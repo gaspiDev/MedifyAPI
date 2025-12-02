@@ -7,6 +7,6 @@ namespace Core.Application.Interfaces
     {
         Task<IEnumerable<PatientForViewDto>?> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId);
         Task<AssociationForViewDto> CreateAssociationAsync(AssociationAsSysAdminDto dto);
-        Task<AssociationForViewDto?> UnassignAssociationAsync(Guid associationId);
+        Task<AssociationForViewDto?> UnassignAssociationAsync(Guid doctorId, Guid patientId);
     }
 }
