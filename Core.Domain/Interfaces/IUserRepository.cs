@@ -7,5 +7,6 @@ namespace Infrastructure.Data.Repositories
         Task<int> DeleteUserAsync(Guid id);
         Task<User?> ReadUserByEmailAsync(string email);
         Task<IEnumerable<User?>> ReadUsers();
+        Task<User?> ReadByAuth0IdAsync(string auth0Id);
     }
 }

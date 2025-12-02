@@ -16,6 +16,7 @@ namespace Core.Application.Mappings
         {
             // CreateMap<Source, Destination>();
             CreateMap<User, UserForViewDto>();
+            CreateMap<UserForCreationDto, User>();
         }
     }
 }

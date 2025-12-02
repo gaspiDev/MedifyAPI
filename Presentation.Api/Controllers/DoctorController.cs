@@ -1,11 +1,16 @@
-﻿using Core.Application.Interfaces;
+﻿using Core.Application.DTOs.DoctorDTO;
+using Core.Application.DTOs.PatientDTO;
+using Core.Application.Interfaces;
 using Core.Application.Services;
+using Core.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class DoctorController : Controller
     {
         private readonly IDoctorService _doctorService;
@@ -27,13 +32,65 @@ namespace Presentation.Api.Controllers
             return Ok(doctor);
         }
 
-        [HttpGet("/Patients")]
-        public async Task<IActionResult> ReadPatientsByDoctor([FromQuery] Guid doctorId)
+        [HttpGet("/Patients/{doctorId}")]
+        public async Task<IActionResult> ReadPatientsByDoctor([FromRoute] Guid doctorId)
         {
             var patients = await _doctorService.ReadPatientsByDoctor(doctorId);
             return Ok(patients);
         }
 
-        
+        [HttpGet("/DoctorPatient/{doctorId}")]
+        public async Task<IActionResult> ReadPatientsNotAssociatedByDoctorAsync([FromRoute] Guid doctorId)
+        {
+            var patients = await _doctorService.ReadPatientsNotAssociatedByDoctorAsync(doctorId);
+            return Ok(patients);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] DoctorForCreationDto doctor)
+        {
+            try
+            {
+                var id = await _doctorService.CreateDoctorAsync(doctor);
+
+                return Ok(new { message = "User created successfully", Id = id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
+            }
+        }
+
+        [HttpPost("/Doctor/SysAdmin")]
+        public async Task<IActionResult> CreateDoctorAsSysAdmin([FromBody] DoctorForCreationDto doctor)
+        {
+            try
+            {
+                var id = await _doctorService.CreateDoctorAsync(doctor);
+
+                return Ok(new { message = "User created successfully", Id = id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating user: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] DoctorForUpdateDto dto)
+        {
+            var result = await _doctorService.UpdateDoctorAsync(id, dto);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpDelete("Doctor/{id}")]
+        public async Task<IActionResult> DeleteDoctor([FromRoute] Guid id)
+        {
+            var doctor = await _doctorService.DeleteDoctorAsync(id);
+           if (doctor == null) return NotFound(); return Ok(doctor);
+        }
+
     }
 }

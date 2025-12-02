@@ -57,7 +57,10 @@ namespace Infrastructure.Data.Repositories
             var patient = await _context.Patients.
                 Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.Id == id);
-            patient.User.IsActive = false;
+            if (patient != null)
+            {
+                patient.User.IsActive = false;
+            }
             return await _context.SaveChangesAsync();
         }
 

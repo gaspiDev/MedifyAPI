@@ -29,6 +29,24 @@ namespace Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
+        public async Task<Doctor?> ReadByDniAsync(int dni)
+        {
+            return await _context.Doctors
+                .Include(p => p.User)
+                .Where(u => u.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Dni == dni);
+        }
+
+        public async Task<Doctor?> ReadByUserIdAsync(Guid userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
         public async Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId)
         {
             return await _context.DoctorPatients
@@ -39,6 +57,17 @@ namespace Infrastructure.Data.Repositories
                 .Where(p => p.User.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedByDoctorAsync(Guid doctorId)
+        {
+            var patients = _context.Patients
+                .Include(p => p.User)
+                .Where(p => p.User.IsActive &&
+                            !_context.DoctorPatients.Any(dp => dp.PatientId == p.Id && dp.DoctorId == doctorId))
+                .AsNoTracking();
+
+            return await patients.ToListAsync();
         }
 
         public async Task<IEnumerable<Doctor>> ReadAllDoctorsAsync()
@@ -56,7 +85,10 @@ namespace Infrastructure.Data.Repositories
             var doctor = await _context.Doctors
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == id);
-             doctor.User.IsActive = false;
+            if (doctor != null)
+            {
+                doctor.User.IsActive = false;
+            }
             return await _context.SaveChangesAsync();
             
         }
