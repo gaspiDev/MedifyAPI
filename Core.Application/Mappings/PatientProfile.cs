@@ -15,6 +15,14 @@ namespace Core.Application.Mappings
         {
             CreateMap<Patient, PatientForViewDto>();
             CreateMap<PatientForCreationDto, PatientForViewDto>();
+            CreateMap<PatientForCreationDto, Patient>()
+           .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            CreateMap<PatientForUpdateDto, Patient>()
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
         }
     }
 }

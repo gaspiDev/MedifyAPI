@@ -15,11 +15,15 @@ namespace Core.Application.Mappings
     {
         public DoctorProfile()
         {
-            // CreateMap<Source, Destination>();
             CreateMap<Doctor, DoctorForViewDto>();
-                //.ForMember(dest => dest.User,
-                //opt => opt.MapFrom(src => src.));
-            CreateMap<DoctorForCreationDto, Doctor>();
+            CreateMap<DoctorForCreationDto, Doctor>()
+                .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            CreateMap<DoctorForUpdateDto, Doctor>()
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
         }
     }
 }
