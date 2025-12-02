@@ -52,7 +52,6 @@ namespace Infrastructure.Data.Repositories
             };
 
             var res = await _http.PostAsJsonAsync($"https://{_domain}/api/v2/users", body);
-            //res.EnsureSuccessStatusCode();
 
             if (!res.IsSuccessStatusCode)
             {

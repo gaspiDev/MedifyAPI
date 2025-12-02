@@ -5,11 +5,7 @@ using Core.Application.Interfaces;
 using Core.Domain.Entities;
 using Core.Domain.Enums;
 using Infrastructure.Data.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Core.Application.Services
 {
@@ -18,13 +14,15 @@ namespace Core.Application.Services
         private readonly IDoctorRepository _doctorRepository;
         private readonly IMapper _mapper;
         private IUserService _userService;
+        private IAppointmentRepository _appointmentRepository;
         private IAuth0Service _auth0Service;
-        public DoctorService(IDoctorRepository doctorRepository, IMapper mapper, IUserService userService, IAuth0Service auth0Service)
+        public DoctorService(IDoctorRepository doctorRepository, IMapper mapper, IUserService userService, IAuth0Service auth0Service, IAppointmentRepository appointmentRepository)
         {
             _doctorRepository = doctorRepository;
             _mapper = mapper;
             _userService = userService;
             _auth0Service = auth0Service;
+            _appointmentRepository = appointmentRepository;
         }
 
         public async Task<IEnumerable<DoctorForViewDto>?> ReadDoctors()
@@ -47,6 +45,20 @@ namespace Core.Application.Services
                 return doctorForView;
             }
         }
+        public async Task<DoctorForViewDto?> ReadByUserIdAsync(Guid userId)
+        {
+            var doctor = await _doctorRepository.ReadByUserIdAsync(userId);
+            if (doctor == null)
+            {
+                return null;
+            }
+            else
+            {
+                var doctorForView = _mapper.Map<DoctorForViewDto>(doctor);
+                return doctorForView;
+            }
+        }
+
 
         public async Task<IEnumerable<PatientForViewDto>?> ReadPatientsByDoctor(Guid doctorId)
         {
@@ -123,6 +135,37 @@ namespace Core.Application.Services
                     await _userService.DeleteUserAsync(Guid.Parse(userId));
 
                 throw;
+            }
+        }
+
+        public async Task<Guid?> UpdateDoctorAsync(Guid id, DoctorForUpdateDto dto)
+        {
+            var doctor = await _doctorRepository.ReadById(id);
+            if (doctor == null)
+            {
+                return null;
+            }
+
+            _mapper.Map(dto, doctor);
+            await _doctorRepository.UpdateAsync(doctor);
+            return doctor.Id;
+        }
+
+        public async Task<Guid?> DeleteDoctorAsync(Guid id)
+        {
+            var doctor = await _doctorRepository.ReadById(id);
+            if (doctor == null)
+            {
+                return null;
+            }
+            else
+            {
+                var appointments = await _appointmentRepository.ReadAppointmentsByDoctorAsync(id);
+                if(appointments != null) throw new InvalidOperationException("Cannot delete doctor with existing appointments.");
+
+                await _doctorRepository.DeleteDoctor(doctor.Id);
+                return doctor.Id;
+                
             }
         }
 

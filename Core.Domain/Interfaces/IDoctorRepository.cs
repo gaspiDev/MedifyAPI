@@ -11,5 +11,6 @@ namespace Infrastructure.Data.Repositories
         Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedByDoctorAsync(Guid doctorId);
         Task<Doctor?> ReadById(Guid id);
         Task<Doctor?> ReadByDniAsync(int dni);
+        Task<Doctor?> ReadByUserIdAsync(Guid userId);
     }
 }

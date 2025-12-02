@@ -38,6 +38,15 @@ namespace Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync(p => p.Dni == dni);
         }
 
+        public async Task<Doctor?> ReadByUserIdAsync(Guid userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
         public async Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId)
         {
             return await _context.DoctorPatients
@@ -76,7 +85,10 @@ namespace Infrastructure.Data.Repositories
             var doctor = await _context.Doctors
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == id);
-             doctor.User.IsActive = false;
+            if (doctor != null)
+            {
+                doctor.User.IsActive = false;
+            }
             return await _context.SaveChangesAsync();
             
         }
