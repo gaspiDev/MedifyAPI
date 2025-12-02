@@ -32,18 +32,18 @@ namespace Presentation.Api.Controllers
             return Ok(doctor);
         }
 
-        [HttpGet("/Patients")]
-        public async Task<IActionResult> ReadPatientsByDoctor([FromQuery] Guid doctorId)
+        [HttpGet("/Patients/{doctorId}")]
+        public async Task<IActionResult> ReadPatientsByDoctor([FromRoute] Guid doctorId)
         {
             var patients = await _doctorService.ReadPatientsByDoctor(doctorId);
             return Ok(patients);
         }
 
-        [HttpGet("/User/{id}")]
-        public async Task<IActionResult> ReadByUserId([FromRoute] Guid id)
+        [HttpGet("/DoctorPatient/{doctorId}")]
+        public async Task<IActionResult> ReadPatientsNotAssociatedByDoctorAsync([FromRoute] Guid doctorId)
         {
-            var doctor = await _doctorService.ReadByUserIdAsync(id);
-            return Ok(doctor);
+            var patients = await _doctorService.ReadPatientsNotAssociatedByDoctorAsync(doctorId);
+            return Ok(patients);
         }
 
 

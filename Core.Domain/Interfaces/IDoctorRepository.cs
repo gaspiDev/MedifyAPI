@@ -8,6 +8,7 @@ namespace Infrastructure.Data.Repositories
         Task<Doctor?> ReadByLicenseAsync(string licenseNumber);
         Task<int?> DeleteDoctor(Guid id);
         Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId);
+        Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedByDoctorAsync(Guid doctorId);
         Task<Doctor?> ReadById(Guid id);
         Task<Doctor?> ReadByDniAsync(int dni);
         Task<Doctor?> ReadByUserIdAsync(Guid userId);
