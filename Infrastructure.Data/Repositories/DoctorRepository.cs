@@ -74,7 +74,10 @@ namespace Infrastructure.Data.Repositories
             var doctor = await _context.Doctors
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.Id == id);
-             doctor.User.IsActive = false;
+            if (doctor != null)
+            {
+                doctor.User.IsActive = false;
+            }
             return await _context.SaveChangesAsync();
             
         }

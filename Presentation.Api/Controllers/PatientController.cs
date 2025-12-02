@@ -79,8 +79,16 @@ namespace Presentation.Api.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("Patient/{id}")]
+        public async Task<IActionResult> DeletePatientAsync([FromRoute] Guid id)
+        {
+            var result = await _patientService.DeletePatientAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
 
-    }
+
+        }
 
 }
