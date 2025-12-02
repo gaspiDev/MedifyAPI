@@ -53,6 +53,17 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Appointments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                            AppointmentDate = new DateTime(2024, 6, 20, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2024, 6, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DoctorId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            PatientId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            Reason = "Follow-up"
+                        });
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.AssociationInvite", b =>
@@ -71,7 +82,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("InviteCode")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAccepted")
@@ -81,7 +91,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("QRToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SentAt")
@@ -133,6 +142,19 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Doctors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Adress = "123 Medical St",
+                            Dni = 12345678,
+                            FirstName = "John",
+                            LastName = "Doe",
+                            LicenseNumber = "LIC-12345",
+                            Specialty = "Cardiology",
+                            UserId = new Guid("22222222-2222-2222-2222-222222222222")
+                        });
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.DoctorPatient", b =>
@@ -167,6 +189,17 @@ namespace Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("DoctorPatients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            AssignedAt = new DateTime(2024, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DoctorId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            IsActive = true,
+                            Method = 2,
+                            PatientId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+                        });
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.Patient", b =>
@@ -203,6 +236,30 @@ namespace Infrastructure.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Patients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            Address = "456 Main Ave",
+                            DateOfBirth = new DateTime(1990, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dni = 87654321,
+                            FirstName = "María",
+                            LastName = "Gonzalez",
+                            PhoneNumber = "+541112345678",
+                            UserId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            Address = "789 Side Rd",
+                            DateOfBirth = new DateTime(1985, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dni = 11223344,
+                            FirstName = "Carlos",
+                            LastName = "Perez",
+                            PhoneNumber = "+541198765432",
+                            UserId = new Guid("44444444-4444-4444-4444-444444444444")
+                        });
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.Study", b =>
@@ -220,6 +277,9 @@ namespace Infrastructure.Data.Migrations
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -233,7 +293,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("StudyUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
@@ -280,6 +339,44 @@ namespace Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Auth0Id = "auth0|sysadmin",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "sysadmin@medify.local",
+                            IsActive = true,
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Auth0Id = "auth0|doctor1",
+                            CreatedAt = new DateTime(2024, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "dr.john@medify.local",
+                            IsActive = true,
+                            Role = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Auth0Id = "auth0|patient1",
+                            CreatedAt = new DateTime(2024, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "maria.patiente@medify.local",
+                            IsActive = true,
+                            Role = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            Auth0Id = "auth0|patient2",
+                            CreatedAt = new DateTime(2024, 3, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "carlos.patiente@medify.local",
+                            IsActive = true,
+                            Role = 2
+                        });
                 });
 
             modelBuilder.Entity("Core.Domain.Entities.Appointment", b =>

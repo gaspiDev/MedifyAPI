@@ -1,0 +1,28 @@
+﻿using AutoMapper;
+using Core.Application.DTOs.PatientDTO;
+using Core.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Application.Mappings
+{
+    public class PatientProfile : Profile
+    {
+        public PatientProfile()
+        {
+            CreateMap<Patient, PatientForViewDto>();
+            CreateMap<PatientForCreationDto, PatientForViewDto>();
+            CreateMap<PatientForCreationDto, Patient>()
+           .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            CreateMap<PatientForUpdateDto, Patient>()
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+        }
+    }
+}
