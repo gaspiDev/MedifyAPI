@@ -3,13 +3,17 @@ using Core.Application.Mappings;
 using Core.Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Data.Repositories;
+using Infrastructure.Data.Resilience;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Scrutor;
-using System.Text;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseWebRoot("wwwroot");
+
 
 builder.Services.AddDbContext<MedifyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -25,6 +29,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<DoctorRepository>()
     .AddClasses(classes => classes.InNamespaces("Infrastructure.Data.Repositories"))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<DoctorRepository>()
+    .AddClasses(classes => classes.InNamespaces("Infrastructure.Data.Services.Storage"))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
 
@@ -46,20 +56,80 @@ builder.Services.AddAutoMapper(cfg =>
 var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];
 
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = $"https://{domain}/";
         options.Audience = audience;
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("AUTH FAILED: " + context.Exception?.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Console.WriteLine("AUTH CHALLENGE:");
+                Console.WriteLine("  Error: " + context.Error);
+                Console.WriteLine("  Description: " + context.ErrorDescription);
+                Console.WriteLine("  Failure: " + context.AuthenticateFailure?.Message);
+                return Task.CompletedTask;
+            }
+        };
     });
 
-builder.Services.AddHttpClient();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Medify API", Version = "v1" });
+
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "JWT Bearer. Ej: Bearer {token}",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { securityScheme, Array.Empty<string>() }
+    });
+});
+
+builder.Services
+    .AddHttpClient<IAuth0Repository, Auth0Repository>(client =>
+    {
+        if (!string.IsNullOrEmpty(domain))
+            client.BaseAddress = new Uri($"https://{domain}/");
+
+        client.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
+    })
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
+    })
+    .AddPolicyHandler(PollyPolicies.GetRetryPolicy())
+    .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy())
+    .AddPolicyHandler(PollyPolicies.GetTimeoutPolicy());
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -71,6 +141,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 

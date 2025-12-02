@@ -18,15 +18,18 @@ namespace Core.Application.Services
         private readonly IAuth0Service _auth0Service;
         private readonly IUserService _userService;
         private readonly IPatientRepository _patientRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
         private readonly IMapper _mapper;
 
         public PatientService(IAuth0Service auth0Service, IUserService userService,
-            IPatientRepository patientRepository, IMapper mapper)
+            IPatientRepository patientRepository, IMapper mapper,
+            IAppointmentRepository appointmentRepository)
         {
             _auth0Service = auth0Service;
             _userService = userService;
             _patientRepository = patientRepository;
             _mapper = mapper;
+            _appointmentRepository = appointmentRepository;
         }
         public async Task<IEnumerable<PatientForViewDto>?> ReadPatients()
         {
@@ -99,6 +102,35 @@ namespace Core.Application.Services
 
                 throw; 
             }
+        }
+
+        public async Task<Guid?> UpdatePatientAsync(Guid id, PatientForUpdateDto dto)
+        {
+            var patient = await _patientRepository.ReadByIdAsync(id);
+            if (patient == null)
+            {
+                return null;
+            }
+
+            _mapper.Map(dto, patient);
+            await _patientRepository.UpdateAsync(patient);
+            return patient.Id;
+        }
+
+        public async Task<Guid?> DeletePatientAsync(Guid id)
+        {
+            var patient = await _patientRepository.ReadByIdAsync(id);
+            if (patient == null)
+            {
+                return null;
+            }
+
+            var appointments = await _appointmentRepository.ReadByPatientIdAsync(id);
+            if (appointments != null && appointments.Any())
+                throw new InvalidOperationException("Cannot delete patient with existing appointments.");
+
+            await _patientRepository.DeletePatient(patient.Id);
+            return patient.Id;
         }
 
 

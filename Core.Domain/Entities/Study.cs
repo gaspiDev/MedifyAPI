@@ -8,8 +8,9 @@ public class Study : IEntity
 {
     public Guid Id { get; set; }
     public required string Type { get; set; }
-    public required string StudyUrl { get; set; }
+    public string? StudyUrl { get; set; }
     public string? Notes { get; set; }
+    public string? FileName { get; set; }
     public required DateTime StudyDate { get; set; }
     public DateTime? CompletedAt { get; set; }
     public StudyState State { get; set; } = StudyState.Pending;

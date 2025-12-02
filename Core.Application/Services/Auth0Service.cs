@@ -20,19 +20,7 @@ namespace Core.Application.Services
             _mapper = mapper;
         }
 
-        //public async Task<string> CreateUserAsync(string email, string password)
-        //{
-        //    try
-        //    {
-        //        var userId = await _auth0Repository.CreateUserAsync(email, password);
-        //        return userId;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error creating user in Auth0: {ex.Message}");
-        //        throw; 
-        //    }
-        //}
+
         public async Task<string> CreateUserAsSysAdmin(UserForCreationDto userDto)
         {
             try

@@ -6,8 +6,8 @@ namespace Core.Domain.Entities;
 public class AssociationInvite : IEntity
 {
     public Guid Id { get; set; }
-    public required string InviteCode { get; set; }
-    public required string QRToken { get; set; }
+    public string? InviteCode { get; set; }
+    public string? QRToken { get; set; }
 
     public bool IsAccepted { get; set; } = false;
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
