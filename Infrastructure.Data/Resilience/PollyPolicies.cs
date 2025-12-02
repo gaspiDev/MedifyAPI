@@ -46,7 +46,6 @@ namespace Infrastructure.Data.Resilience
 
         public static IAsyncPolicy<HttpResponseMessage> GetTimeoutPolicy()
         {
-            // Use optimistic timeout so Polly cancels via CancellationToken provided to handlers
             return Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromSeconds(3), TimeoutStrategy.Optimistic);
         }
     }

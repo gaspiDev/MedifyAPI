@@ -84,7 +84,6 @@ namespace Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
-        // New: patients not actively associated with given doctor
         public async Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedWithDoctorAsync(Guid doctorId)
         {
             return await _context.Patients
@@ -97,13 +96,25 @@ namespace Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Guid?> DeleteAssociations(Guid id)
+        public async Task<Guid?> DeleteAssociations(Guid doctorId, Guid patientId)
         {
-            var AssId = await ReadAssociationByIdAsync(id);
-            AssId.IsActive = false;
-            _context?.SaveChangesAsync();
-            return AssId.Id;
+            var association = await _context.DoctorPatients
+                .Where(dp => dp.DoctorId == doctorId && dp.PatientId == patientId && dp.IsActive)
+                .Include(dp => dp.Doctor)
+                .Include(dp => dp.Patient)
+                .FirstOrDefaultAsync();
+
+            if (association == null)
+                return null;
+
+            association.IsActive = false;
+            association.UnassignedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();   
+
+            return association.Id;
         }
+
 
 
 

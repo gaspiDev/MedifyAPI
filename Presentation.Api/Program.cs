@@ -1,4 +1,3 @@
-using Core.Application.Interfaces;
 using Core.Application.Mappings;
 using Core.Application.Services;
 using Infrastructure.Data;
@@ -7,8 +6,6 @@ using Infrastructure.Data.Resilience;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Polly;
-using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,6 @@
 ﻿using Core.Application.DTOs.AssociationDTO;
 using Core.Application.Interfaces;
+using Core.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,17 +35,19 @@ namespace Presentation.Api.Controllers
             return BadRequest(new { Message = "Failed to associate doctor and patient." });
         }
 
-        [HttpPost("disassociate/{associationId}")]
-        public async Task<IActionResult> DisassociateDoctorPatient(Guid associationId)
+        [HttpDelete("disassociate/{doctorId}")]
+        public async Task<IActionResult> DisassociateDoctorPatient([FromRoute] Guid doctorId, [FromQuery] Guid patientId)
         {
-            var result = await _doctorPatientService.UnassignAssociationAsync(associationId);
-            if (result != null)
+            var result = await _doctorPatientService.UnassignAssociationAsync(doctorId, patientId);
+            if (result == null)
             {
-                return Ok(new { Message = "Doctor and patient disassociated successfully." });
+                return NotFound(new { Message = "Association not found." });
             }
-            return BadRequest(new { Message = "Failed to disassociate doctor and patient." });
+
+
+            return NoContent();
         }
 
-        }
+    }
 
 }
