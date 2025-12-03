@@ -71,8 +71,9 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'medify-api-cxcccheubbgscsg6'
+          app-name: 'medify-api'        
           slot-name: 'Production'
-          package: ./myapp
+          package: ./publish     
 
           
+
