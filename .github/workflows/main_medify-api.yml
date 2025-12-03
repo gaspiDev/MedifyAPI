@@ -6,52 +6,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
+      - name: Clean
+        run: dotnet clean MedifyAPI.sln --configuration Release
+
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore MedifyAPI.sln
 
-      - name: Build
-        run: dotnet build Presentation.Api/Presentation.Api.csproj -c Release --no-restore
+      - name: Publish API
+        run: dotnet publish Presentation.Api/Presentation.Api.csproj -c Release -o ./out/publish
 
-      - name: Publish
-        run: dotnet publish Presentation.Api/Presentation.Api.csproj -c Release -o ./publish
-
-      - name: Archive publish output to ZIP
+      - name: Zip publish folder
         run: |
-          cd publish
-          zip -r ../app.zip .
-          cd ..
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: webapp-package
-          path: app.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: webapp-package
-          path: .
+          cd out/publish
+          zip -r ../../app.zip .
+          cd ../..
 
       - name: Login to Azure
         uses: azure/login@v2
