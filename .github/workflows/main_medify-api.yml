@@ -60,15 +60,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F1989314C84547AE83D77E5402DA365F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8DC6F6531F374CCEB9E831DFF16000FB }}
 
-      - name: Enable run from package (once)
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az webapp config appsettings set \
-              --name medify-api \
-              --resource-group <TU_RESOURCE_GROUP> \
-              --settings WEBSITE_RUN_FROM_PACKAGE=1
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
