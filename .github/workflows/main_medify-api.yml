@@ -73,5 +73,5 @@ jobs:
         with:
           app-name: 'medify-api'
           slot-name: 'Production'
-          package: .
+          package: ./myapp
           
