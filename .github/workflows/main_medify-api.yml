@@ -2,7 +2,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - medify-api
 
 on:
   push:
-    branches:
+    branches: 
       - main
   workflow_dispatch:
 
@@ -15,25 +15,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Build application
-        run: dotnet build --configuration Release --no-restore
+      - name: Build
+        run: dotnet build Presentation.Api/Presentation.Api.csproj -c Release --no-restore
 
       - name: Publish
         run: dotnet publish Presentation.Api/Presentation.Api.csproj -c Release -o ./publish
 
-      - name: Upload artifact for deployment job
+      - name: Archive publish output
+        run: |
+          cd publish
+          zip -r ../publish.zip .
+          cd ..
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ./publish
+          name: webapp-package
+          path: publish.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,11 +48,11 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-          path: ./publish
+          name: webapp-package
+          path: .
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -57,9 +62,8 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8DC6F6531F374CCEB9E831DFF16000FB }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'medify-api'
           slot-name: 'Production'
-          package: ./publish
+          package: publish.zip
