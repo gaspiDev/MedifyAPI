@@ -2,8 +2,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - medify-api
 
 on:
   push:
-    branches: 
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -29,16 +28,16 @@ jobs:
       - name: Publish
         run: dotnet publish Presentation.Api/Presentation.Api.csproj -c Release -o ./publish
 
-      - name: Archive publish output
+      - name: Archive publish output to ZIP
         run: |
           cd publish
-          zip -r ../publish.zip .
+          zip -r ../app.zip .
           cd ..
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: webapp-package
-          path: publish.zip
+          path: app.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -61,9 +60,18 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F1989314C84547AE83D77E5402DA365F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8DC6F6531F374CCEB9E831DFF16000FB }}
 
+      - name: Enable run from package (once)
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az webapp config appsettings set \
+              --name medify-api \
+              --resource-group <TU_RESOURCE_GROUP> \
+              --settings WEBSITE_RUN_FROM_PACKAGE=1
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'medify-api'
           slot-name: 'Production'
-          package: publish.zip
+          package: app.zip
