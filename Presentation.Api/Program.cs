@@ -126,6 +126,21 @@ builder.Services
     .AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy())
     .AddPolicyHandler(PollyPolicies.GetTimeoutPolicy());
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFront", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173"
+                 
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        // .AllowCredentials(); // solo si usás cookies
+    });
+});
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -138,7 +153,8 @@ if (app.Environment.IsDevelopment())
 
     app.UseHttpsRedirection();
 
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+app.UseCors("AllowFront");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
