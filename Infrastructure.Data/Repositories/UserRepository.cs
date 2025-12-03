@@ -25,6 +25,14 @@ namespace Infrastructure.Data.Repositories
             return await _context.Users.Where(u => u.IsActive == true).AsNoTracking().ToListAsync();
         }
 
+        public async Task<User?> ReadByAuth0IdAsync(string auth0Id)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Auth0Id == auth0Id);
+        }
+
+
         public async Task<int> DeleteUserAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);

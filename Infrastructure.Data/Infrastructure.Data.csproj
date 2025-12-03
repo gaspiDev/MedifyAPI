@@ -10,17 +10,22 @@
     <ProjectReference Include="../Core.Application/Core.Application.csproj" />
     <ProjectReference Include="../Core.Domain/Core.Domain.csproj" />
   </ItemGroup>
+	
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories/" />
-    <Folder Include="Services/" />
-  </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+	  <PackageReference Include="Polly" Version="8.6.4" />
+	  <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
       <PrivateAssets>all</PrivateAssets>

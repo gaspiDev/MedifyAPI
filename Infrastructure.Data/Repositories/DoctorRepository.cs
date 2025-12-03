@@ -12,7 +12,7 @@ namespace Infrastructure.Data.Repositories
     {
         public DoctorRepository(MedifyDbContext context) : base(context) { }
 
-        public async Task<Doctor?> GetByLicenseAsync(string licenseNumber)
+        public async Task<Doctor?> ReadByLicenseAsync(string licenseNumber)
         {
             return await _context.Doctors
                 .Include(d => d.User)
@@ -20,8 +20,57 @@ namespace Infrastructure.Data.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.LicenseNumber == licenseNumber);
         }
+        public new async Task<Doctor?> ReadById(Guid id)
+        {
+            return await _context.Doctors
+                .Include(u => u.User)
+                .Where(u => u.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
 
-        public async Task<IEnumerable<Doctor>> GetAllWithUsersAsync()
+        public async Task<Doctor?> ReadByDniAsync(int dni)
+        {
+            return await _context.Doctors
+                .Include(p => p.User)
+                .Where(u => u.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Dni == dni);
+        }
+
+        public async Task<Doctor?> ReadByUserIdAsync(Guid userId)
+        {
+            return await _context.Doctors
+                .Include(d => d.User)
+                .Where(d => d.User.IsActive)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
+        public async Task<IEnumerable<Patient>?> ReadPatientsByDoctorAsync(Guid doctorId)
+        {
+            return await _context.DoctorPatients
+                .Where(dp => dp.DoctorId == doctorId)
+                .Include(dp => dp.Patient)
+                .ThenInclude(dp => dp.User)
+                .Select(dp => dp.Patient)
+                .Where(p => p.User.IsActive)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Patient>?> ReadPatientsNotAssociatedByDoctorAsync(Guid doctorId)
+        {
+            var patients = _context.Patients
+                .Include(p => p.User)
+                .Where(p => p.User.IsActive &&
+                            !_context.DoctorPatients.Any(dp => dp.PatientId == p.Id && dp.DoctorId == doctorId))
+                .AsNoTracking();
+
+            return await patients.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Doctor>> ReadAllDoctorsAsync()
         {
             return await _context.Doctors
                 .Include(d => d.User)
@@ -31,7 +80,20 @@ namespace Infrastructure.Data.Repositories
         }
 
 
+        public async Task<int?> DeleteDoctor(Guid id)
+        {
+            var doctor = await _context.Doctors
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(d => d.Id == id);
+            if (doctor != null)
+            {
+                doctor.User.IsActive = false;
+            }
+            return await _context.SaveChangesAsync();
+            
+        }
     }
 
+        
 
 }

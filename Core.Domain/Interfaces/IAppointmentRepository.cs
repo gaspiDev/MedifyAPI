@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Data.Repositories
 {
-    public interface IAppointmentRepository
+    public interface IAppointmentRepository : IBaseRepository<Appointment>
     {
         Task<IEnumerable<Appointment?>> ReadAppointmentsByDoctorAsync(Guid doctorId);
         Task<IEnumerable<Appointment>> ReadAsync();
